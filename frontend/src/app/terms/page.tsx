@@ -18,7 +18,7 @@ export default function TermsOfService() {
       
       <Navigation /> 
 
-      <main className="flex-grow pt-32 pb-16 px-4 text-black">
+      <main className="flex-grow pt-32 pb-16 px-4 text-black mt-10">
         <div className="container mx-auto max-w-4xl">
           
           {/* Header */}

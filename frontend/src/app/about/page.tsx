@@ -5,9 +5,49 @@ import Footer from "@/components/Footer";
 
 // Add Next.js SEO Metadata for the About page
 export const metadata: Metadata = {
-  title: "About Us | Otic Surveys",
-  description: "Learn about Otic Surveys, a leading geospatial surveying and mapping company delivering reliable solutions across Africa.",
-};
+  title: {
+    default: "OTIC SURVEYS | Geospatial Surveying & Mapping Solutions", 
+    template: "%s | OTIC SURVEYS" 
+  },
+  description: "Licensed Land Surveyors in Nigeria providing Boundary Surveys, Topographic Mapping, and Drone Surveying services.",
+  keywords: ["Land Surveyors in Lagos", "Geospatial Company Nigeria", "OTIC SURVEYS", "Topographic Mapping"],
+  metadataBase: new URL('https://oticsurveys.com'),
+  
+  // ROBOTS
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+
+  // OPEN GRAPH
+  openGraph: {
+    title: "OTIC SURVEYS | Geospatial Surveying & Mapping Solutions",
+    description: "Licensed Land Surveyors in Nigeria providing professional Boundary Surveys and Drone Mapping.",
+    url: 'https://oticsurveys.com',
+    siteName: 'OTIC SURVEYS',
+    images: [
+      {
+        url: '/assets/drone_about.jpeg',
+        width: 1200,
+        height: 630,
+        alt: 'OTIC SURVEYS Equipment and Team',
+      },
+    ],
+  },
+
+  // CANONICAL
+  alternates: {
+    canonical: '/',
+  },
+}
+
 
 export default function AboutPage() {
   return (

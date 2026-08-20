@@ -66,7 +66,7 @@ const Footer = () => {
     { icon: <LinkedinIcon className="w-5 h-5" />, href: "https://www.linkedin.com/company/oticsurveys/posts/?feedView=all", label: "LinkedIn" },
     { icon: <FacebookIcon className="w-5 h-5" />, href: "https://www.facebook.com/share/1DrvsjiSmZ/?mibextid=wwXIfr", label: "Facebook" },
     { icon: <InstagramIcon className="w-5 h-5" />, href: "https://www.instagram.com/oticsurveys?igsh=MWYxb2wyMHJ5dzNkag", label: "Instagram" },
-    { icon: <YoutubeIcon className="w-5 h-5" />, href: "https://https://www.youtube.com/@oticgeosystems/shorts", label: "YouTube" },
+    { icon: <YoutubeIcon className="w-5 h-5" />, href: "https://www.youtube.com/results?search_query=oticgeosystems", label: "YouTube" },
     { icon: <XIcon className="w-5 h-5" />, href: "https://x.com/oticsurveys", label: "X" },
     { icon: <TiktokIcon className="w-5 h-5" />, href: "https://www.tiktok.com/@oticsurveys?_r=1&_t=ZS-9379WMtLlS9", label: "TikTok" },
   ]
@@ -113,19 +113,19 @@ const Footer = () => {
 
   return (
     <footer className="bg-card border-t border-border pt-16 pb-8">
-      <div className="w-full max-w-full pl-6 pr-6 overflow-hidden">
+      <div className="w-full max-w-full pl-4 pr-6 md:pl-3 lg:pl-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 items-start">
 
          {/* COLUMN 1: Brand */}
-<div className="pl-0 md:pl-1">
-  <div className="relative h-0 mb-6">
+<div className="pl-0 md:pl-1 relative">
+  <div className="ml-[-20] mb-0 -mt-20 md:-mt-40 md:absolute md:top-10 md:left-0 lg:static lg:-mt-45">
     <img
-      src="/otic-logo.png" // Move logo to /public/otic-logo.png
+      src="/otic-logo.png"
       alt="OTIC Survey"
-      className="absolute -top-40 -left-20 md:-left-20 lg:left-4 h-[500px] w-auto object-contain"
+      className="h-[200px] w-auto object-contain md:h-[300px] lg:h-[500px]"
     />
   </div>
-  <div className="mt-[170px] ml-0 md:ml-0 lg:ml-20">
+  <div className="md:ml-0 mt-[-50] md:mt-[-150] md:pt-[280px] lg:pt-0 lg:ml-10">
     <p className="text-sm text-gray-400 leading-relaxed mb-4">
       Mapping Your World with Accuracy & Precision.
     </p>
@@ -249,6 +249,9 @@ const Footer = () => {
         <div className="pt-8 mt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left pl-2 md:pl-1">
           <p className="text-xs text-gray-500">
             © {new Date().getFullYear()} OTIC Survey. All rights reserved.
+            <span className="block md:inline md:ml-2 text-gray-500">
+              | 3, Bello Close, Chevy View Estate, Opposite New Road, Lekki-Epe Expressway, Lagos
+            </span>
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="text-xs text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>

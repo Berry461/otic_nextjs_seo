@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 
 // 1. Add Next.js SEO Metadata
 export const metadata: Metadata = {
-  title: "Home | Otic Surveys",
+  title: "OTIC Surveys | Geospatial Surveying & Mapping Solutions",
   description: "Advanced geospatial surveying, 3D laser scanning, and mapping solutions.",
 };
 

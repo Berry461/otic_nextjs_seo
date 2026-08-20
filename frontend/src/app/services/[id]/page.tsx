@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Target, Users, Clock, ShieldCheck } from "lucide
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { servicesData } from "@/data/services";
+import { Metadata } from "next";
 
 // --- Import your Sections ---
 import Navigation from "@/components/Navigation";
@@ -13,25 +14,26 @@ import BusinessStats from "@/components/BusinessStats";
 import Testimonials from "@/components/ClientTestimonials"; // (Assuming you still have this one!)
 import FAQ from "@/components/FAQ";
 
+
 // --- WHY CHOOSE US DATA ---
 const whyChooseUs = [
   {
-    icon: <Target className="w-8 h-8 text-primary" />,
+    icon: <Target className="w-8 h-8 text-white" />,
     title: "Precision Accuracy",
     text: "We utilize state-of-the-art geospatial technology to ensure every measurement is exact to the millimeter."
   },
   {
-    icon: <Users className="w-8 h-8 text-primary" />,
+    icon: <Users className="w-8 h-8 text-white" />,
     title: "Expert Team",
     text: "Our certified engineers and surveyors bring decades of combined field experience to your project."
   },
   {
-    icon: <Clock className="w-8 h-8 text-primary" />,
+    icon: <Clock className="w-8 h-8 text-white" />,
     title: "Timely Delivery",
     text: "We understand the value of time in construction and strictly adhere to project timelines."
   },
   {
-    icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+    icon: <ShieldCheck className="w-8 h-8 text-white" />,
     title: "Proven Reliability",
     text: "With over many projects completed, our reputation for safety and quality is well-established."
   }
@@ -41,15 +43,33 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const service = servicesData.find((s) => s.id === id);
-  
-  if (!service) return { title: "Service Not Found | Otic Surveys" };
+
+  if (!service) return { title: "Service Not Found" };
+
+  // Helper to get the string URL
+  const imageUrl = typeof service.image === 'string' 
+    ? service.image 
+    : (service.image as any)?.src || '/3dlaserscanning.jpeg';
 
   return {
-    title: `${service.title} | Otic Surveys`,
-    description: service.description,
+    title: service.title,
+    description: service.description?.substring(0, 160),
+    openGraph: {
+      title: `${service.title} | OTIC SURVEYS`,
+      description: service.description?.substring(0, 160),
+      url: `https://oticsurveys.com/services/${id}`,
+      images: [
+        {
+          url: imageUrl, // Use the extracted string URL here
+          width: 1200,
+          height: 630,
+          alt: service.title,
+        },
+      ],
+    },
   };
 }
 
@@ -95,7 +115,7 @@ export default async function SingleServicePage({ params }: Props) {
               </Link>
             </Button>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white uppercase tracking-wider">
-              {service.title}
+              
             </h1>
           </div>
         </div>
@@ -135,15 +155,15 @@ export default async function SingleServicePage({ params }: Props) {
                   </div>
 
                   <CardContent className="p-6">
-                    <p className="text-muted-foreground line-clamp-2 mb-6 text-sm">
+                    <p className="text-white line-clamp-2 mb-6 text-sm">
                       {relatedService.description}
                     </p>
                     <Link 
                       href={`/services/${relatedService.id}`}
-                      className="inline-flex items-center text-primary font-semibold hover:text-primary/80 transition-colors"
+                      className="inline-flex items-center text-white font-semibold hover:text-blue-400 transition-colors"
                     >
                       View Service
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:text-blue-400 transition-transform" />
                     </Link>
                   </CardContent>
                 </Card>
@@ -173,8 +193,8 @@ export default async function SingleServicePage({ params }: Props) {
                   <div className="mb-6 p-4 rounded-full bg-primary/10 inline-block">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-foreground">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <h3 className="text-xl font-bold mb-3 text-white">{feature.title}</h3>
+                  <p className="text-white text-sm leading-relaxed">
                     {feature.text}
                   </p>
                 </Card>

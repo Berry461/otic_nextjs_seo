@@ -74,7 +74,7 @@ const PostView = ({ content, galleryImages = [] }: PostViewProps) => {
         className="
           prose prose-lg prose-blue w-full max-w-none break-words text-gray-800 leading-relaxed
           
-          prose-p:my-2
+          prose-p:my-6
           prose-headings:mt-6 
           prose-headings:mb-3 
           

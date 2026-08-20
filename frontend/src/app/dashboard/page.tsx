@@ -76,7 +76,7 @@ export default function Dashboard() {
             
             <div className="flex items-center gap-3">
               <button 
-                onClick={() => router.push('/admin/posts/new')} // 5. CHANGED: Updated routing
+                onClick={() => router.push('/create/posts/new')} // 5. CHANGED: Updated routing
                 className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm font-medium"
               >
                 <Plus size={20} /> New Post
@@ -167,7 +167,7 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-3">
-                        <button onClick={() => router.push(`/edit/${post.slug}`)} className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
+                        <button onClick={() => router.push(`/create/posts/${post.slug}`)} className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition">
                           <Edit size={18} />
                         </button>
                         <button onClick={() => handleDelete(post.id.toString())} className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition">

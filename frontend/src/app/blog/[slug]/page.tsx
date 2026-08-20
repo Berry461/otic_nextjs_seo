@@ -28,7 +28,7 @@ type Props = {
 }
 
 async function getPost(slug: string): Promise<BlogPost | null> {
-  const res = await fetch(`http://localhost:8000/api/posts/${slug}/`, {
+  const res = await fetch(`https://www.oticsurveys.com/api/posts/${slug}/`, {
     cache: 'no-store'
   })
 
@@ -51,13 +51,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.excerpt ?? "Professional drone surveying and mapping services in Nigeria.",
       images: post.image ? [post.image] : [],
       type: 'article',
-      url: `http://localhost:8000/blog/${slug}`
+      url: `https://oticsurveys.com/blog/${slug}`
     },
     twitter: {
       card: 'summary_large_image'
     },
     alternates: {
-      canonical: `http://localhost:8000/blog/${slug}`
+      canonical: `https://www.oticsurveys.com/blog/${slug}`
     }
   }
 }

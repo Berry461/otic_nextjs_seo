@@ -4,7 +4,7 @@ import ProjectsSection from "@/components/ProjectsSection";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Projects | Otic Surveys",
+  title: "OTIC Surveys | Geospatial Surveying & Mapping Solutions",
   description: "Explore the complete list of our projects.",
 };
 

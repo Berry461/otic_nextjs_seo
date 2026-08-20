@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 
 // Add Next.js SEO Metadata for the Contact page
 export const metadata: Metadata = {
-  title: "Contact Us | Otic Surveys",
+  title: "OTIC Surveys | Geospatial Surveying & Mapping Solutions",
   description: "Get in touch with Otic Surveys for your geospatial surveying, 3D laser scanning, and mapping needs.",
 };
 

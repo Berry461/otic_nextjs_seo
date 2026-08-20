@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+import { Metadata } from "next"
+
 
 // UI Components
 import Navigation from '@/components/Navigation'
@@ -33,8 +35,23 @@ type Props = {
   searchParams: Promise<{ page?: string }>
 }
 
+export const metadata: Metadata = {
+  title: "OTIC Surveys | Surveying Insights & Industry News",
+  description: "Stay updated with the latest trends in geospatial technology, land surveying best practices, and project updates from OTIC SURVEYS in Nigeria.",
+  keywords: ["Land Surveying Blog", "Geospatial News Nigeria", "Surveying Tips", "OTIC SURVEYS Updates", "Drones"],
+  alternates: {
+    canonical: '/blog',
+  },
+  openGraph: {
+    title: "OTIC SURVEYS Blog | Expert Surveying Insights",
+    description: "Deep dives into drone mapping, boundary laws, and engineering surveys.",
+    url: 'https://oticsurveys.com/blog',
+    type: 'website',
+  },
+};
+
 async function getPosts(page: number): Promise<PaginatedPosts> {
-  const res = await fetch(`http://localhost:8000/api/posts/?page=${page}`, {
+  const res = await fetch(`https://oticsurveys.com/api/posts/?page=${page}`, {
     cache: 'no-store' 
   })
 

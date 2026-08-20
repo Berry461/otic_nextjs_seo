@@ -126,6 +126,11 @@
     text-shadow: 0 0 20px rgba(0, 178, 227, 0.8);
   }
 
+  .prose p {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -185,4 +190,14 @@
       box-shadow: 0 0 20px rgba(0, 178, 227, 0.8), 0 0 40px rgba(0, 178, 227, 0.5);
     }
   }
+}
+
+
+  @keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
 }

@@ -1,4 +1,3 @@
-
 export interface Project {
   id: string
   image: string
@@ -10,6 +9,7 @@ export interface Project {
 }
 
 export const projectsData: Project[] = [
+   /*
   {
     id: "urban-infrastructure",
     image: "/assets/as_built_project.jpg", // ← Changed to string path
@@ -19,6 +19,7 @@ export const projectsData: Project[] = [
     description: "3D laser scanning as-built survey of the ARK (Winners Chapel).",
     fullDescription: "Our team completed a comprehensive 3D laser scanning survey of the ARK (Winners Chapel), Ogun State, to verify construction alignment with the approved design plans. Millions of data points were captured to generate accurate digital representations of the structure, supporting compliance assessment, documentation, and informed decision-making",
   },
+*/
   {
     id: "industrial-facility",
     image: "/assets/route_surveys_projects.jpg",
@@ -40,7 +41,7 @@ export const projectsData: Project[] = [
   {
     id: "wind-farm",
     image: "/assets/bathymetric_survey_project.jpg",
-    title: "Bathymetric Survey at Ozumba Nmbadiwe, Victoria Island - Prof Tower",
+    title: "Bathymetric Survey at Ozumba Mbadiwe, Victoria Island - Prof Tower",
     category: "Bathymetric Survey",
     stats: "High-density underwater data",
     description: "High-resolution bathymetric survey using advanced sonar systems",
