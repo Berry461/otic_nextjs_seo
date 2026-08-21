@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import Chatbot from "@/components/Chatbot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -104,6 +105,7 @@ export default function RootLayout({
         </Providers>
         <GoogleAnalytics gaId="G-2ZDPTVCZHC" />
         <WhatsAppFloat />
+        <Chatbot />
       </body>
     </html>
   );

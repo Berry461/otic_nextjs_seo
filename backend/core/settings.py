@@ -1,7 +1,7 @@
+from datetime import timedelta
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from datetime import timedelta
 
 # Load environment variables
 load_dotenv()
@@ -17,29 +17,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.getenv('DEBUG', '0') in ('1', 'true', 'True')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
-ALLOWED_HOSTS = [
-    'www.oticsurveys.com',
-    'oticsurveys.com',
-    'localhost',
-    '127.0.0.1'
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://oticsurveys.com',
-    'https://www.oticsurveys.com',
-]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 # Application definition
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",       # Keep for local testing
-    "http://localhost:3000",       # Keep for local testing
-    "https://oticsurveys.com",    # <--- ADD THIS (Production)
-    "https://www.oticsurveys.com" # <--- ADD THIS (Production with www)
+    "http://localhost:5173", # If using Vite
+    "http://localhost:3000", # If using standard Create-React-App
 ]
 
 INSTALLED_APPS = [
@@ -91,17 +79,27 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'landmatter_db',      # The full name from Phase 1, Step A
+#         'USER': 'landmatter_user',       # The full name from Phase 1, Step B
+#         'PASSWORD': 'Blogback@123', # The password from Phase 1, Step B
+#         'HOST': 'localhost',            # On cPanel, this is almost always 'localhost'
+#         'PORT': '',                     # Leave empty to use default port
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'landmattersdb',      # The full name from Phase 1, Step A
-        'USER': 'landmattersuser',       # The full name from Phase 1, Step B
-        'PASSWORD': 'Blogback@123', # The password from Phase 1, Step B
-        'HOST': '127.0.0.1',            # On cPanel, this is almost always 'localhost'
-        'PORT': '5432',                     # Leave empty to use default port
+        'NAME': 'oticsurveys_db',
+        'USER': 'postgres',
+        'PASSWORD': 'devpass123',
+        'HOST': 'db', # Since Docker is mapping port 5432 to your laptop
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -158,18 +156,6 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_CREDENTIALS = True
-
-# CHANGE THESE TO FALSE
-SECURE_SSL_REDIRECT = False
-
-# 3. Tell Django not to worry if the request looks like HTTP
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-# 4. Make sure this doesn't block local calls
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

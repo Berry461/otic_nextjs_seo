@@ -9,3 +9,4 @@ gunicorn==25.0.0
 numpy
 psycopg2-binary
 python-dotenv
+Pillow
