@@ -24,6 +24,17 @@ export default function Chatbot() {
     },
   ]);
 
+  const sessionIdRef = useRef<string>("");
+
+  useEffect(() => {
+    let id = sessionStorage.getItem("otic_chat_session_id");
+    if (!id) {
+      id = crypto.randomUUID();
+      sessionStorage.setItem("otic_chat_session_id", id);
+    }
+    sessionIdRef.current = id;
+  }, []);
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -54,6 +65,7 @@ export default function Chatbot() {
             role: m.sender === "user" ? "user" : "model",
             text: m.text,
           })),
+        session_id: sessionIdRef.current,
       });
       setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: data.reply }]);
     } catch (error) {

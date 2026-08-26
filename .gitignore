@@ -11,3 +11,5 @@ frontend_backup/
 backend/media/
 frontend/node_modules/
 frontend/.next/
+docker-compose.yml
+Dockerfile

@@ -95,8 +95,29 @@ export default function CreatePostForm({ params }: Props) {
     setGalleryPreviews((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const validatePost = (): string | null => {
+    if (title.length > 200) {
+      return `Title is ${title.length} characters — please shorten it to 200 characters or fewer.`
+    }
+    if (excerpt.length > 500) {
+      return `Excerpt is ${excerpt.length} characters — please shorten it to 500 characters or fewer (currently ${excerpt.length - 500} over the limit).`
+    }
+    if (tags.length > 255) {
+      const tagCount = tags.split(',').filter((t) => t.trim()).length
+      return `SEO Tags are too long (${tags.length} characters across ${tagCount} tags) — the limit is 255 characters total. Please remove or shorten a few tags.`
+    }
+    return null
+  }
+
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    const validationError = validatePost()
+    if (validationError) {
+      console.error('Post validation failed:', validationError)
+      toast.error(validationError)
+      return
+    }
 
     const generatedSlug = title
       .toLowerCase()
@@ -125,14 +146,20 @@ export default function CreatePostForm({ params }: Props) {
       console.error('DJANGO ERROR DATA:', error.response?.data)
       const errorData = error.response?.data
       const titleError = Array.isArray(errorData?.title) ? errorData.title[0] : errorData?.title
-      const slugError = Array.isArray(errorData?.slug) ? errorData.slug[0] : errorData?.slug
+      const slugError = Array.isArray(errorData?.slug) ? errorData.slug[0] :errorData?.slug
+      const excerptError = Array.isArray(errorData?.excerpt) ? errorData.excerpt[0] : errorData?.excerpt
+      const tagsError = Array.isArray(errorData?.tags) ? errorData.tags[0] : errorData?.tags
 
       if (titleError) {
         toast.error(`Title error: ${titleError}`)
+      } else if (excerptError) {
+        toast.error(`Excerpt error: ${excerptError}`)
+      } else if (tagsError) {
+        toast.error(`SEO Tags error: ${tagsError}`)
       } else if (slugError) {
         toast.error('A post with this title already exists! Please choose a different title.')
       } else if (error.response?.status === 500) {
-        toast.error('Server error: This title might already exist, causing a database conflict.')
+        toast.error('Server error: This title might already exist, causing adatabase conflict.')
       } else {
         toast.error(`Failed to ${isEditing ? 'update' : 'create'} post. Check console for details.`)
       }
