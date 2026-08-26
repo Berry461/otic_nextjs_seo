@@ -28,7 +28,7 @@ type Props = {
 }
 
 async function getPost(slug: string): Promise<BlogPost | null> {
-  const res = await fetch(`https://www.oticsurveys.com/api/posts/${slug}/`, {
+  const res = await fetch(`http://localhost:8000/api/posts/${slug}/`, {
     cache: 'no-store'
   })
 

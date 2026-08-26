@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'; 
 import { useRouter } from 'next/navigation'; // 2. CHANGED: Next.js App Router navigation
 import { useAllPosts, useDeletePost } from '@/hooks/usePosts'; // Adjust path if needed
-import { Edit, Trash2, Plus, FileText, CheckCircle, LogOut, ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import { Edit, Trash2, Plus, FileText, CheckCircle, LogOut, ChevronLeft, ChevronRight, Search, Filter, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -75,6 +75,13 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-800">Creator Dashboard</h1>
             
             <div className="flex items-center gap-3">
+              <button 
+                onClick={() => router.push('/dashboard/chatlogs')}
+                className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-50 transition shadow-sm font-medium"
+              >
+                <MessageSquare size={20} /> Chat Logs
+              </button>
+
               <button 
                 onClick={() => router.push('/create/posts/new')} // 5. CHANGED: Updated routing
                 className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm font-medium"
