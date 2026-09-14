@@ -88,6 +88,9 @@ class PostSerializer(serializers.ModelSerializer):
             'status',
             'published_at',
             'tags',
+            'video_url',
+            'link_text',
+            'link_url',
             'gallery_images', # <--- Must be here
             'upload_gallery'  # <--- Must be here
         ]

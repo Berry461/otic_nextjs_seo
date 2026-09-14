@@ -6,13 +6,15 @@ import DOMPurify from 'dompurify'
 interface PostViewProps {
   content: string
   galleryImages?: string[]
+  videoEmbedUrl?: string | null
+  linkText?: string | null
+  linkUrl?: string | null
 }
 
-const PostView = ({ content, galleryImages = [] }: PostViewProps) => {
+const PostView = ({ content, galleryImages = [], videoEmbedUrl, linkText, linkUrl }: PostViewProps) => {
   const [cleanContent, setCleanContent] = useState('')
 
   useEffect(() => {
-    // DOMPurify only works in browser, so we run it in useEffect
     const generateGalleryGrid = () => {
       if (!galleryImages || galleryImages.length === 0) return ''
 
@@ -36,34 +38,53 @@ const PostView = ({ content, galleryImages = [] }: PostViewProps) => {
       `
     }
 
-    const injectGallery = (htmlContent: string) => {
-      const galleryPlaceholder = /(?:<p>|<br>|\s|&nbsp;)*\[\[\s*gallery\s*\]\](?:<\/p>|<br>|\s|&nbsp;)*/gi
-      
-      if (galleryPlaceholder.test(htmlContent)) {
-        return htmlContent.replace(galleryPlaceholder, generateGalleryGrid())
+    const generateVideoEmbed = () => {
+      if (!videoEmbedUrl) return ''
+      return `
+        <div class="w-full aspect-video rounded-xl overflow-hidden !my-6 shadow-md">
+          <iframe
+            src="${videoEmbedUrl}"
+            title="Video"
+            class="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+      `
+    }
+
+    const generateLinkHtml = () => {
+     if (!linkText || !linkUrl) return ''
+     return `&nbsp;<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800 font-semibold">${linkText}</a>&nbsp;`
+    }
+
+    const injectPlaceholder = (htmlContent: string, keyword: string, replacement: string) => {
+      const placeholder = new RegExp(`(?:<p>|<br>|\\s|&nbsp;)*\\[\\[\\s*${keyword}\\s*\\]\\](?:<\\/p>|<br>|\\s|&nbsp;)*`, 'gi')
+      if (placeholder.test(htmlContent)) {
+        return htmlContent.replace(placeholder, replacement)
       }
       return htmlContent
     }
 
     const contentWithRealSpaces = content.replace(/\u00A0/g, ' ')
-    
-    // 👉 FIX INLINE RICH-TEXT IMAGES: Convert /media/... inside the text body to absolute URL
+
     const contentWithAbsoluteImages = contentWithRealSpaces.replace(
       /src="(\/[^"]+)"/g,
-      'src="http://localhost:8000$1"'
+      `src="${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}$1"`
     )
 
-    const contentWithGallery = injectGallery(contentWithAbsoluteImages)
-    
-    const sanitized = DOMPurify.sanitize(contentWithGallery, {
+    const sanitized = DOMPurify.sanitize(contentWithAbsoluteImages, {
       ADD_TAGS: ['img', 'div'],
       ADD_ATTR: ['src', 'alt', 'class', 'style', 'loading']
     })
 
-    setCleanContent(sanitized)
-  }, [content, galleryImages])
+    let finalContent = injectPlaceholder(sanitized, 'gallery', generateGalleryGrid())
+    finalContent = injectPlaceholder(finalContent, 'video', generateVideoEmbed())
+    finalContent = injectPlaceholder(finalContent, 'link', generateLinkHtml())
 
-  // Show nothing on first render to avoid SSR mismatch with DOMPurify
+    setCleanContent(finalContent)
+  }, [content, galleryImages, videoEmbedUrl, linkText, linkUrl])
+
   if (!cleanContent) {
     return <div className="w-full max-w-none animate-pulse h-96 bg-gray-100 rounded-lg" />
   }

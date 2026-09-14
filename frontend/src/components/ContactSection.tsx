@@ -71,7 +71,7 @@ const ContactSection = () => {
     <section id="contact" className="bg-background">
       
       {/* ▼▼▼▼▼▼▼▼ MAP SECTION (CHEVY VIEW & NEW ROAD) ▼▼▼▼▼▼▼▼ */}
-      <div ref={mapRef} className="w-full h-[400px] mb-16 overflow-hidden border-b border-border/50">
+      <div ref={mapRef} className="w-full h-[400px] mt-[140px] mb-16 overflow-hidden border-b border-border/50">
         <iframe
           width="100%"
           height="100%"

@@ -15,7 +15,7 @@ export default function ContactPage() {
       <div className="relative z-10">
         <Navigation />
         
-        <div className="pt-20">
+        <div>
           <ContactSection />
         </div>
         

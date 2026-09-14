@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',  
     'rest_framework',
+    'analytics',
     'rest_framework_simplejwt',
     'blog',
     'chatlogs'
@@ -76,31 +77,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'landmatter_db',      # The full name from Phase 1, Step A
-#         'USER': 'landmatter_user',       # The full name from Phase 1, Step B
-#         'PASSWORD': 'Blogback@123', # The password from Phase 1, Step B
-#         'HOST': 'localhost',            # On cPanel, this is almost always 'localhost'
-#         'PORT': '',                     # Leave empty to use default port
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'oticsurveys_db',
-        'USER': 'postgres',
-        'PASSWORD': 'devpass123',
-        'HOST': 'db', # Since Docker is mapping port 5432 to your laptop
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
+# DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

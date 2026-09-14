@@ -5,7 +5,7 @@ import axios from "axios";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 const AI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-const DJANGO_API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api").replace(/\/$/, "");
+const DJANGO_API = (process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "") + "/api";
 
 export interface AIResponseResult {
   text: string;

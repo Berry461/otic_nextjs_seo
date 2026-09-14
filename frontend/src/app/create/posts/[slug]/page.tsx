@@ -46,6 +46,9 @@ export default function CreatePostForm({ params }: Props) {
   const [publishedAt, setPublishedAt] = useState('')
   const [tags, setTags] = useState('')
   const [authorId, setAuthorId] = useState('')
+  const [videoUrl, setVideoUrl] = useState('')
+  const [linkText, setLinkText] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
   const [isDataLoaded, setIsDataLoaded] = useState(false)
 
   // Populate form when editing
@@ -57,6 +60,9 @@ export default function CreatePostForm({ params }: Props) {
       setContent(existingPost.full_content || '')
       setStatus(existingPost.status || 'published')
       setTags(existingPost.tags || '')
+      setVideoUrl(existingPost.video_url || '')
+      setLinkText(existingPost.link_text || '')
+      setLinkUrl(existingPost.link_url || '')
 
       if (existingPost.author) {
         const authorIdStr =
@@ -136,6 +142,9 @@ export default function CreatePostForm({ params }: Props) {
     formData.append('full_content', cleanContent)
     formData.append('status', status)
     formData.append('tags', tags)
+    formData.append('video_url', videoUrl)
+    formData.append('link_text', linkText)
+    formData.append('link_url', linkUrl)
 
     if (authorId) formData.append('author', authorId)
     formData.append('published_at', publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString())
@@ -184,6 +193,7 @@ export default function CreatePostForm({ params }: Props) {
           setImage(null); setImagePreview(null)
           setGalleryFiles([]); setGalleryPreviews([])
           setCategory('Land / Cadastral Survey'); setTags(''); setPublishedAt(''); setAuthorId('')
+          setVideoUrl(''); setLinkText(''); setLinkUrl('')
           window.scrollTo(0, 0)
           router.push('/dashboard')
         },
@@ -220,9 +230,9 @@ export default function CreatePostForm({ params }: Props) {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-4xl mx-auto p-6 bg-white shadow-sm rounded-xl border border-gray-100 my-10">
+       <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white shadow-sm rounded-xl border border-gray-100 my-4 sm:my-10">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
             {isEditing ? 'Edit Post' : 'Create New Post'}
           </h1>
           <div className="flex gap-4">
@@ -385,6 +395,37 @@ export default function CreatePostForm({ params }: Props) {
             </div>
           </div>
 
+          {/* Video & Link */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 bg-gray-50 border border-gray-200 rounded-lg">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">YouTube Video URL</label>
+              <input
+                type="url" value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full p-2 border border-gray-300 rounded-md bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Link Text</label>
+              <input
+                type="text" value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="e.g. Learn more"
+                className="w-full p-2 border border-gray-300 rounded-md bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Link URL</label>
+              <input
+                type="url" value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com/page"
+                className="w-full p-2 border border-gray-300 rounded-md bg-white"
+              />
+            </div>
+          </div>
+
           {/* Excerpt */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Short Excerpt</label>
@@ -413,7 +454,7 @@ export default function CreatePostForm({ params }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-4 pt-4 border-t border-gray-100 mt-12">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-4 border-t border-gray-100 mt-12">
             <button
               type="submit" disabled={isSaving}
               className="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"

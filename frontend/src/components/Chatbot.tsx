@@ -5,6 +5,7 @@ import { X, Send, Bot, Minus, MessageSquare } from "lucide-react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import ChatLauncherPrompt from "./ChatLauncherPrompt";
 
 const MAX_HISTORY_MESSAGES = 10;
 
@@ -16,6 +17,7 @@ interface Message {
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -39,6 +41,12 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const quickLinks = [                                    // ← ADD THIS
+    { label: "Get a Quote", message: "I'd like to get a quote for a survey." },
+    { label: "Our Services", message: "What surveying services do you offer?" },
+    { label: "Contact Us", message: "How can I contact OTIC Surveys directly?" },
+  ]; 
+
   useEffect(() => {
     if (isOpen) {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,6 +54,52 @@ export default function Chatbot() {
   }, [messages, isOpen]);
 
   const toggleChat = () => setIsOpen((prev) => !prev);
+
+    useEffect(() => {
+    if (isOpen) {
+      setShowPrompt(false);
+      return;
+    }
+    if (sessionStorage.getItem("otic_chat_prompt_dismissed") === "true") {
+      return;
+    }
+
+    let hideTimer: ReturnType<typeof setTimeout>;
+
+    const scheduleNextPrompt = () => {
+      const delay = 30000 + Math.random() * 30000;
+      return setTimeout(() => {
+        setShowPrompt(true);
+        hideTimer = setTimeout(() => setShowPrompt(false), 8000);
+      }, delay);
+    };
+
+    const firstTimer = setTimeout(() => {
+      setShowPrompt(true);
+      hideTimer = setTimeout(() => setShowPrompt(false), 8000);
+    }, 6000);
+
+    const interval = setInterval(() => {
+      setShowPrompt(false);
+      scheduleNextPrompt();
+    }, 45000);
+
+    return () => {
+      clearTimeout(firstTimer);
+      clearTimeout(hideTimer);
+      clearInterval(interval);
+    };
+  }, [isOpen]);
+
+  const dismissPrompt = () => {
+    setShowPrompt(false);
+    sessionStorage.setItem("otic_chat_prompt_dismissed", "true");
+  };
+
+  const startChatFromPrompt = () => {
+    setShowPrompt(false);
+    setIsOpen(true);
+  };
 
   const handleSend = async (textToSend?: string) => {
     const query = textToSend || input;
@@ -157,6 +211,20 @@ export default function Chatbot() {
             <div ref={chatEndRef} />
           </div>
 
+          {!loading && (                                           
+            <div className="px-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
+              {quickLinks.map((q) => (
+                <button
+                  key={q.label}
+                  onClick={() => handleSend(q.message)}
+                  className="shrink-0 text-[11px] font-medium px-3 py-1.5 bg-blue-50 text-blue-800 border border-blue-200 rounded-full hover:bg-blue-100 transition-colors whitespace-nowrap cursor-pointer"
+                >
+                  {q.label}
+                </button>
+              ))}
+            </div>
+          )}                                                        
+
           <div className="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
             <input
               type="text"
@@ -177,21 +245,44 @@ export default function Chatbot() {
         </div>
       )}
 
-      <div className="fixed bottom-6 right-6 flex items-center gap-3">
-        {!isOpen && (
-          <span className="hidden sm:inline-block bg-white text-gray-800 text-xs font-medium px-3 py-2 rounded-full shadow-lg border border-gray-200 animate-fade-in">
-            Need help? Chat with us
-          </span>
-        )}
+      {!isOpen && (
+      <div className="group fixed bottom-6 right-6 flex items-end gap-3">
+        <div className="hidden sm:block">
+          {showPrompt && (
+            <ChatLauncherPrompt
+              onStartChat={startChatFromPrompt}
+              onDismiss={dismissPrompt}
+            />
+          )}
+        </div>
+        <button
+            onClick={toggleChat}
+            title="Need help? Chat with us"
+            className={`bg-blue-800 hover:bg-blue-900 text-white shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-500 ease-out cursor-pointer overflow-hidden ${
+              showPrompt
+                ? "w-auto h-14 rounded-full px-5 gap-2"
+                : "w-14 h-14 rounded-full hover:scale-105"
+            }`}
+            aria-label="Open AI Assistant"
+          >
+            <MessageSquare className="w-6 h-6 shrink-0" />
+            {showPrompt && (
+              <span className="text-sm font-semibold whitespace-nowrap animate-[fadeIn_0.3s_ease-out_0.2s_both]">
+                Need help? Chat with us
+              </span>
+            )}
+          </button>
+        </div>
+      )}
+      {isOpen && (
         <button
           onClick={toggleChat}
-          title="Need help? Chat with us"
-          className="w-14 h-14 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105 cursor-pointer"
-          aria-label="Open AI Assistant"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-105 cursor-pointer"
+          aria-label="Close AI Assistant"
         >
-          {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
+          <X className="w-6 h-6" />
         </button>
-      </div>
+      )}
     </div>
   );
 }
