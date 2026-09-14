@@ -10,24 +10,31 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', '0') in ('1', 'true', 'True')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = [
+    'www.oticsurveys.com',
+    'oticsurveys.com',
+    'localhost',
+    '127.0.0.1',
+]
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://oticsurveys.com',
+    'https://www.oticsurveys.com',
+]
 
 # Application definition
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", # If using Vite
-    "http://localhost:3000", # If using standard Create-React-App
+    "http://localhost:5173",       # Keep for local testing
+    "http://localhost:3000",       # Keep for local testing
+    "https://oticsurveys.com",
+    "https://www.oticsurveys.com",
 ]
 
 INSTALLED_APPS = [
@@ -37,13 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',  
+    'corsheaders',
     'rest_framework',
+    'analytics',
     'rest_framework_simplejwt',
     'blog',
-    'chatlogs'
+    'chatlogs',
 ]
-
 
 
 MIDDLEWARE = [
@@ -76,29 +83,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'landmatter_db',      # The full name from Phase 1, Step A
-#         'USER': 'landmatter_user',       # The full name from Phase 1, Step B
-#         'PASSWORD': 'Blogback@123', # The password from Phase 1, Step B
-#         'HOST': 'localhost',            # On cPanel, this is almost always 'localhost'
-#         'PORT': '',                     # Leave empty to use default port
-#     }
-# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'oticsurveys_db',
-        'USER': 'postgres',
-        'PASSWORD': 'devpass123',
-        'HOST': 'db', # Since Docker is mapping port 5432 to your laptop
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -142,8 +137,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Keeps you logged in for 1 hour
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Keeps your refresh token valid for a week
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
 }
@@ -158,9 +153,15 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_CREDENTIALS = True
 
+# Production HTTPS settings — Nginx terminates SSL and forwards to Gunicorn over HTTP
+SECURE_SSL_REDIRECT = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

@@ -4,6 +4,8 @@ import "./globals.css";
 import Providers from "./providers";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import Chatbot from "@/components/Chatbot";
+import PageViewTracker from "@/components/PageViewTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +33,6 @@ export const metadata: Metadata = {
     icon: '/otic-logo.png?v=2',
   },
   verification: {
-    // ONLY paste the random string of letters/numbers here
     google: "_GzvMgIPoBlke7-qzqR-6AS6CjfZiH-IDsQn4EVMrKg", 
   },
   openGraph: {
@@ -68,7 +69,7 @@ export default function RootLayout({
     "image": "https://oticsurveys.com/otic-logo.png",
     "description": "Licensed Land Surveyors in Nigeria specializing in Topographic, Hydrographic, and Engineering Surveys.",
     "url": "https://oticsurveys.com",
-    "telephone": "+2348100277870", // Update with your actual number
+    "telephone": "+2348100277870",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "3, Bello Close, Chevy View Estate, Opposite New Road, Lekki-Epe Expressway, Lagos",
@@ -98,12 +99,14 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <PageViewTracker />
         <Providers>
           {children}
         </Providers>
         <GoogleAnalytics gaId="G-2ZDPTVCZHC" />
         <WhatsAppFloat />
+        <Chatbot />
       </body>
     </html>
   );

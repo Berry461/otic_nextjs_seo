@@ -23,6 +23,9 @@ class Post(models.Model):
     full_content = models.TextField() 
     category = models.CharField(max_length=100, default="General")
     image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
+    video_url = models.URLField(max_length=500, blank=True, null=True, help_text="YouTube video URL (optional)")
+    link_text = models.CharField(max_length=100, blank=True, null=True, help_text="Text for the clickable link, e.g. 'Learn more'")
+    link_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL the link should point to")
 
     # Internal User
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploaded_posts')

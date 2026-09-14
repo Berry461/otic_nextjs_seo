@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 import Navigation from '@/components/Navigation'
+import { SERVER_API_BASE } from '@/lib/serverConfig'
 import Footer from '@/components/Footer'
 import PostView from '@/components/PostView'
 
@@ -19,6 +20,9 @@ type BlogPost = {
   published_at: string | null
   created_at: string
   gallery_images?: any[]
+  video_url?: string | null
+  link_text?: string | null
+  link_url?: string | null
 }
 
 // 👉 UPDATED PROPS TO INCLUDE searchParams 👈
@@ -28,13 +32,18 @@ type Props = {
 }
 
 async function getPost(slug: string): Promise<BlogPost | null> {
-  const res = await fetch(`http://localhost:8000/api/posts/${slug}/`, {
+  const res = await fetch(`${SERVER_API_BASE}/api/posts/${slug}/`, {
     cache: 'no-store'
   })
 
   if (res.status === 404) return null
   if (!res.ok) throw new Error('Failed to fetch post')
   return res.json()
+}
+
+function getYouTubeEmbedUrl(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -128,8 +137,14 @@ export default async function BlogDetail({ params, searchParams }: Props) {
             Back to Articles
           </Link>
 
-          <article className="w-full prose lg:prose-xl max-w-none">
-            <PostView content={post.full_content} galleryImages={post.gallery_images} />
+           <article className="w-full prose lg:prose-xl max-w-none">
+            <PostView
+              content={post.full_content}
+              galleryImages={post.gallery_images}
+              videoEmbedUrl={post.video_url ? getYouTubeEmbedUrl(post.video_url) : null}
+              linkText={post.link_text}
+              linkUrl={post.link_url}
+            />
           </article>
         </div>
       </main>

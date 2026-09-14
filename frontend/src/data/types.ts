@@ -14,6 +14,9 @@ export interface BlogPost {
   created_at: string
   category: string
   image: string | null
+  video_url?: string | null;
+  link_text?: string | null;
+  link_url?: string | null;
   gallery_images: string[]
   author: number | Author | null // ← Change: can be ID or full object
   author_username: string

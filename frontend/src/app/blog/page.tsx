@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+import { SERVER_API_BASE } from '@/lib/serverConfig'
 import { Metadata } from "next"
 
 
@@ -51,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 async function getPosts(page: number): Promise<PaginatedPosts> {
-  const res = await fetch(`http://localhost:8000/api/posts/?page=${page}`, {
+  const res = await fetch(`${SERVER_API_BASE}/api/posts/?page=${page}`, {
     cache: 'no-store' 
   })
 

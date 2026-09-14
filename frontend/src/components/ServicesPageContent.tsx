@@ -44,7 +44,7 @@ const ServicesPageContent = () => {
           {servicesData.map((service, index) => {
             const isExternal = index === 0 || index === 12;
             let externalLink = "#";
-            if (index === 0) externalLink = "https://oticgs.com/buynow?category=survey-equipment";
+            if (index === 0) externalLink = "https://oticgs.com/ng/shop";
             else if (index === 12) externalLink = "https://oticgs.com/training";
 
             return isExternal ? (

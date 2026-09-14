@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('blog.urls')),
     path('api/chatlogs/', include('chatlogs.urls')),
+    path("api/analytics/", include("analytics.urls")),
 ]
 
 if settings.DEBUG:
