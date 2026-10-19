@@ -179,6 +179,7 @@ export default function Chatbot() {
                       remarkPlugins={[remarkGfm]}
                       components={{
                         a: ({ href, children }) => (
+                            <a
                           
                             href={href}
                             target="_blank"
