@@ -5,6 +5,8 @@ import axios from "axios";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 const AI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+// Optional: a second model to try if the main one stays overloaded
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "";
 const DJANGO_API = (process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "") + "/api";
 
 export interface AIResponseResult {
@@ -33,6 +35,82 @@ const searchContentTool: FunctionDeclaration = {
   },
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Temporary Google-side problems worth retrying (overload, rate limit, timeouts)
+function isRetryable(err: unknown): boolean {
+  const e = err as { status?: number; message?: string };
+  if (e && typeof e.status === "number" && [429, 500, 503, 504].includes(e.status)) return true;
+  const msg = String(e?.message ?? "");
+  return /UNAVAILABLE|RESOURCE_EXHAUSTED|high demand|overloaded|timed out|ECONNRESET/i.test(msg);
+}
+
+// One full attempt against one model. Throws on failure so the caller can retry.
+async function runChat(
+  model: string,
+  systemInstruction: string,
+  userMessage: string,
+  history: { role: "user" | "model"; text: string }[]
+): Promise<AIResponseResult> {
+  // A fresh chat each attempt, so a failed try leaves no half-written history
+  const chat = ai.chats.create({
+    model,
+    config: {
+      systemInstruction,
+      tools: [{ functionDeclarations: [searchContentTool] }],
+    },
+    history: history.slice(-10).map((m) => ({
+      role: m.role,
+      parts: [{ text: m.text }],
+    })),
+  });
+
+  let result = await chat.sendMessage({ message: userMessage });
+  const functionCalls = result.functionCalls;
+  let toolCalled: string | null | undefined = null;
+  let toolResultCount: number | null = null;
+
+  if (functionCalls && functionCalls.length > 0) {
+    const call = functionCalls[0];
+    toolCalled = call.name;
+
+    if (call.name === "searchOticSurveysContent") {
+      const searchQuery = (call.args as { query: string }).query;
+
+      let matchedPosts: any[] = [];
+      try {
+        const apiRes = await axios.get(`${DJANGO_API}/posts/`, {
+          params: { search: searchQuery },
+        });
+        const results = apiRes.data?.results ?? apiRes.data ?? [];
+        matchedPosts = results.slice(0, 3).map((p: any) => ({
+          title: p.title,
+          excerpt: p.excerpt,
+          url: `https://oticsurveys.com/blog/${p.slug}`,
+          category: p.category,
+        }));
+        toolResultCount = matchedPosts.length;
+      } catch (err) {
+        console.error("searchOticSurveysContent failed:", err);
+        toolResultCount = 0;
+      }
+
+      result = await chat.sendMessage({
+        message: [
+          {
+            functionResponse: {
+              name: "searchOticSurveysContent",
+              response: { articles: matchedPosts },
+            },
+          },
+        ],
+      });
+    }
+  }
+
+  return { text: result.text ?? "", toolCalled, toolResultCount, errored: false };
+}
+
 export async function generateAIResponse(
   userMessage: string,
   pageContext?: string,
@@ -47,69 +125,31 @@ If a question asks about something specific that is NOT covered in the knowledge
     systemInstruction += `\n\n=== CURRENT PAGE CONTENT VISIBLE TO USER ===\n${pageContext}\n`;
   }
 
-  try {
-    const chat = ai.chats.create({
-      model: AI_MODEL,
-      config: {
-        systemInstruction,
-        tools: [{ functionDeclarations: [searchContentTool] }],
-      },
-      history: history.slice(-10).map((m) => ({
-        role: m.role,
-        parts: [{ text: m.text }],
-      })),
-    });
-
-    let result = await chat.sendMessage({ message: userMessage });
-    const functionCalls = result.functionCalls;
-    let toolCalled: string | null | undefined = null;
-    let toolResultCount: number | null = null;
-
-    if (functionCalls && functionCalls.length > 0) {
-      const call = functionCalls[0];
-      toolCalled = call.name;
-
-      if (call.name === "searchOticSurveysContent") {
-        const searchQuery = (call.args as { query: string }).query;
-
-        let matchedPosts: any[] = [];
-        try {
-          const apiRes = await axios.get(`${DJANGO_API}/posts/`, {
-            params: { search: searchQuery },
-          });
-          const results = apiRes.data?.results ?? apiRes.data ?? [];
-          matchedPosts = results.slice(0, 3).map((p: any) => ({
-            title: p.title,
-            excerpt: p.excerpt,
-            url: `https://oticsurveys.com/blog/${p.slug}`,
-            category: p.category,
-          }));
-          toolResultCount = matchedPosts.length;
-        } catch (err) {
-          console.error("searchOticSurveysContent failed:", err);
-          toolResultCount = 0;
-        }
-
-        result = await chat.sendMessage({
-          message: [
-            {
-              functionResponse: {
-                name: "searchOticSurveysContent",
-                response: { articles: matchedPosts },
-              },
-            },
-          ],
-        });
-      }
-    }
-
-    return { text: result.text ?? "", toolCalled, toolResultCount, errored: false };
-  } catch (error) {
-    console.error("AI Service Error:", error);
-    return {
-      text: "I'm having trouble retrieving details right now. You can browse our services at https://oticsurveys.com/services or contact us directly.",
-      errored: true,
-      errorMessage: error instanceof Error ? error.message : String(error),
-    };
+  // Same model twice (with a short wait), then the backup model if one is set
+  const attempts: { model: string; waitBefore: number }[] = [
+    { model: AI_MODEL, waitBefore: 0 },
+    { model: AI_MODEL, waitBefore: 1500 },
+  ];
+  if (FALLBACK_MODEL && FALLBACK_MODEL !== AI_MODEL) {
+    attempts.push({ model: FALLBACK_MODEL, waitBefore: 500 });
   }
+
+  let lastError: unknown = null;
+
+  for (const attempt of attempts) {
+    if (attempt.waitBefore) await sleep(attempt.waitBefore);
+    try {
+      return await runChat(attempt.model, systemInstruction, userMessage, history);
+    } catch (error) {
+      lastError = error;
+      console.error(`AI Service Error (model ${attempt.model}):`, error);
+      if (!isRetryable(error)) break; // a bad key or bad request won't fix itself
+    }
+  }
+
+  return {
+    text: "I'm having trouble retrieving details right now. You can browse our services at https://oticsurveys.com/services or contact us directly.",
+    errored: true,
+    errorMessage: lastError instanceof Error ? lastError.message : String(lastError),
+  };
 }
