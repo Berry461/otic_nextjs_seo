@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
-import { GoogleAnalytics } from '@next/third-parties/google';
+import GaOnInteraction from "@/components/GaOnInteraction";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import Chatbot from "@/components/Chatbot";
 import PageViewTracker from "@/components/PageViewTracker";
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     icon: '/otic-logo.png?v=2',
   },
   verification: {
-    google: "_GzvMgIPoBlke7-qzqR-6AS6CjfZiH-IDsQn4EVMrKg", 
+    google: "_GzvMgIPoBlke7-qzqR-6AS6CjfZiH-IDsQn4EVMrKg",
   },
   openGraph: {
     title: "OTIC SURVEYS | Geospatial Surveying & Mapping Solutions",
@@ -104,7 +104,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <GoogleAnalytics gaId="G-2ZDPTVCZHC" />
+        <GaOnInteraction gaId="G-2ZDPTVCZHC" />
         <WhatsAppFloat />
         <Chatbot />
       </body>

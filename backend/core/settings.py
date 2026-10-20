@@ -6,35 +6,31 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', '0') in ('1', 'true', 'True')
 
+DOMAIN = 'oticsurveys.com'
+
 ALLOWED_HOSTS = [
-    'www.oticsurveys.com',
-    'oticsurveys.com',
+    DOMAIN,
+    f'www.{DOMAIN}',
     'localhost',
     '127.0.0.1',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://oticsurveys.com',
-    'https://www.oticsurveys.com',
+    f'https://{DOMAIN}',
+    f'https://www.{DOMAIN}',
 ]
 
-# Application definition
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",       # Keep for local testing
-    "http://localhost:3000",       # Keep for local testing
-    "https://oticsurveys.com",
-    "https://www.oticsurveys.com",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    f'https://{DOMAIN}',
+    f'https://www.{DOMAIN}',
 ]
 
 INSTALLED_APPS = [
@@ -51,7 +47,6 @@ INSTALLED_APPS = [
     'blog',
     'chatlogs',
 ]
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -153,11 +148,13 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Production HTTPS settings — Nginx terminates SSL and forwards to Gunicorn over HTTP
+# Nginx terminates SSL and forwards to Gunicorn over HTTP
 SECURE_SSL_REDIRECT = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+
+# Secure cookies only when DEBUG is off, so local http still works
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
