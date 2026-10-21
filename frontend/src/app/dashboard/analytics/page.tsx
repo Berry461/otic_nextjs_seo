@@ -20,6 +20,19 @@ const PAGE_LABELS: Record<string, string> = {
 
 const PAGE_ORDER = ["home", "about", "services", "projects", "blog", "contact"];
 
+const RANGE_OPTIONS: { value: string; label: string }[] = [
+  { value: "30m", label: "Last 30 minutes" },
+  { value: "1h", label: "Last 1 hour" },
+  { value: "2h", label: "Last 2 hours" },
+  { value: "4h", label: "Last 4 hours" },
+  { value: "12h", label: "Last 12 hours" },
+  { value: "24h", label: "Last 24 hours" },
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "90d", label: "Last 90 days" },
+  { value: "all", label: "All time" },
+];
+
 interface PerPageStat {
   page: string;
   total_views: number;
@@ -41,13 +54,13 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const [data, setData] = useState<SummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState<string>("30");
+  const [range, setRange] = useState<string>("7d");
 
   const fetchSummary = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("access");
-      const url = `${API_BASE}/api/analytics/summary/${days !== "all" ? `?days=${days}` : ""}`;
+      const url = `${API_BASE}/api/analytics/summary/?range=${range}`;
       const res = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,7 +80,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     fetchSummary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days]);
+  }, [range]);
 
   // Build a full 6-page list, filling in zeros for pages with no views yet
   const perPageMap = new Map(
@@ -83,8 +96,8 @@ export default function AnalyticsPage() {
       }
   );
 
-  const totalViews = data?.totals.total_views ?? 0;
-  const totalUnique = data?.totals.unique_visitors ?? 0;
+  const totalViews = data?.totals?.total_views ?? 0;
+  const totalUnique = data?.totals?.unique_visitors ?? 0;
   const maxViews = Math.max(1, ...rows.map((r) => r.total_views));
 
   return (
@@ -99,9 +112,9 @@ export default function AnalyticsPage() {
               <button
                 onClick={() => router.push("/dashboard")}
                 className="relative z-[100] flex items-center gap-1 text-gray-500 hover:text-gray-800 transition"
-                >
+              >
                 <ArrowLeft size={20} />
-                </button>
+              </button>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
                 Analytics
               </h1>
@@ -109,14 +122,15 @@ export default function AnalyticsPage() {
 
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full md:w-auto">
               <select
-                value={days}
-                onChange={(e) => setDays(e.target.value)}
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
                 className="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-lg shadow-sm text-sm sm:text-base"
               >
-                <option value="7">Last 7 days</option>
-                <option value="30">Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="all">All time</option>
+                {RANGE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
 
               <button
@@ -130,7 +144,7 @@ export default function AnalyticsPage() {
           </div>
 
           {loading ? (
-            <div className="p-10 text-center text-gray-500">Loading analytics…</div>
+            <div className="p-10 text-center text-gray-500">Loading analytics...</div>
           ) : (
             <>
               {/* SUMMARY CARDS */}
@@ -156,91 +170,75 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* PER-PAGE BREAKDOWN — CARDS */}
-                <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <BarChart3 size={18} className="text-gray-500" />
-                        <h2 className="font-semibold text-gray-800">Views by Page</h2>
-                    </div>
-                    <p className="text-xs text-gray-400 -mt-2 mb-4">
-                        Views and unique visits per page — a visitor viewing multiple pages counts once on each
-                    </p>
-
-                {loading ? (
-                    <div className="p-10 text-center text-gray-500">Loading analytics…</div>
-                    ) : (
-                    <>
-                        {/* SUMMARY CARDS */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                        {/* ...total views / unique visitors cards... */}
-                        </div>
-
-                        {/* PER-PAGE BREAKDOWN — CARDS */}
-                        <div className="mb-6">
-                        {/* ...page cards... */}
-                        </div>
-
-                        {/* ADD THIS LINE */}
-                        <div
-                        onClick={() => router.push("/dashboard/blog-analytics")}
-                        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
-                        >
-                        <div>
-                            <h2 className="font-semibold text-gray-800">Blog Post Analytics</h2>
-                            <p className="text-sm text-gray-500">See views and unique visitors per blog post</p>
-                        </div>
-                        <ArrowLeft size={18} className="rotate-180 text-gray-400" />
-                        </div>
-                    </>
-                    )}
+              {/* PER-PAGE BREAKDOWN - CARDS */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <BarChart3 size={18} className="text-gray-500" />
+                  <h2 className="font-semibold text-gray-800">Views by Page</h2>
+                </div>
+                <p className="text-xs text-gray-400 -mt-2 mb-4">
+                  Views and unique visits per page - a visitor viewing multiple pages counts once on each
+                </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {rows.map((row) => (
+                  {rows.map((row) => (
                     <div
-                        key={row.page}
-                        className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"
+                      key={row.page}
+                      className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"
                     >
-                        <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center justify-between mb-3">
                         <h3 className="font-semibold text-gray-800">
-                            {PAGE_LABELS[row.page] || row.page}
+                          {PAGE_LABELS[row.page] || row.page}
                         </h3>
                         <span className="bg-blue-50 text-blue-600 text-xs font-medium px-2 py-1 rounded-full">
-                            {row.total_views} views
+                          {row.total_views} views
                         </span>
-                        </div>
+                      </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="flex items-center gap-2">
-                            <div className="bg-blue-50 text-blue-600 p-2 rounded-lg">
+                          <div className="bg-blue-50 text-blue-600 p-2 rounded-lg">
                             <Eye size={16} />
-                            </div>
-                            <div>
+                          </div>
+                          <div>
                             <p className="text-xs text-gray-500">Total Views</p>
                             <p className="font-bold text-gray-800">{row.total_views}</p>
-                            </div>
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <div className="bg-green-50 text-green-600 p-2 rounded-lg">
+                          <div className="bg-green-50 text-green-600 p-2 rounded-lg">
                             <Users size={16} />
-                            </div>
-                            <div>
+                          </div>
+                          <div>
                             <p className="text-xs text-gray-500">Unique</p>
                             <p className="font-bold text-gray-800">{row.unique_sessions}</p>
-                            </div>
+                          </div>
                         </div>
-                        </div>
+                      </div>
 
-                        <div className="w-full bg-gray-100 rounded-full h-1.5 mt-4">
+                      <div className="w-full bg-gray-100 rounded-full h-1.5 mt-4">
                         <div
-                            className="bg-blue-600 h-1.5 rounded-full transition-all"
-                            style={{ width: `${(row.total_views / maxViews) * 100}%` }}
+                          className="bg-blue-600 h-1.5 rounded-full transition-all"
+                          style={{ width: `${(row.total_views / maxViews) * 100}%` }}
                         />
-                        </div>
+                      </div>
                     </div>
-                    ))}
+                  ))}
                 </div>
+              </div>
+
+              {/* LINK TO BLOG POST ANALYTICS */}
+              <div
+                onClick={() => router.push("/dashboard/blog-analytics")}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              >
+                <div>
+                  <h2 className="font-semibold text-gray-800">Blog Post Analytics</h2>
+                  <p className="text-sm text-gray-500">See views and unique visitors per blog post</p>
                 </div>
+                <ArrowLeft size={18} className="rotate-180 text-gray-400" />
+              </div>
             </>
           )}
         </div>

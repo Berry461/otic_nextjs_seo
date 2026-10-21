@@ -10,6 +10,19 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 const POSTS_PER_PAGE = 10;
 
+const RANGE_OPTIONS: { value: string; label: string }[] = [
+  { value: "30m", label: "Last 30 minutes" },
+  { value: "1h", label: "Last 1 hour" },
+  { value: "2h", label: "Last 2 hours" },
+  { value: "4h", label: "Last 4 hours" },
+  { value: "12h", label: "Last 12 hours" },
+  { value: "24h", label: "Last 24 hours" },
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "90d", label: "Last 90 days" },
+  { value: "all", label: "All time" },
+];
+
 interface BlogPostStat {
   path: string;
   total_views: number;
@@ -22,17 +35,12 @@ interface BlogPostStat {
   published_at: string | null;
 }
 
-interface BlogSummaryResponse {
-  totals: { total_views: number; unique_visitors: number };
-  posts: BlogPostStat[];
-}
-
 export default function BlogAnalyticsPage() {
   const router = useRouter();
   const [posts, setPosts] = useState<BlogPostStat[]>([]);
   const [totals, setTotals] = useState({ total_views: 0, unique_visitors: 0 });
   const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState("30");
+  const [range, setRange] = useState("7d");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -40,7 +48,7 @@ export default function BlogAnalyticsPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem("access");
-      const url = `${API_BASE}/api/analytics/blog-posts/${days !== "all" ? `?days=${days}` : ""}`;
+      const url = `${API_BASE}/api/analytics/blog-posts/?range=${range}`;
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const json = await res.json();
@@ -58,7 +66,7 @@ export default function BlogAnalyticsPage() {
   useEffect(() => {
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days]);
+  }, [range]);
 
   const filteredPosts = useMemo(() => {
     if (!search) return posts;
@@ -88,21 +96,22 @@ export default function BlogAnalyticsPage() {
               <button
                 onClick={() => router.push("/dashboard/analytics")}
                 className="relative z-[100] text-gray-500 hover:text-gray-800 transition"
-                >
+              >
                 <ArrowLeft size={20} />
-                </button>
+              </button>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Blog Post Analytics</h1>
             </div>
 
             <select
-              value={days}
-              onChange={(e) => setDays(e.target.value)}
+              value={range}
+              onChange={(e) => setRange(e.target.value)}
               className="bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-lg shadow-sm text-sm sm:text-base"
             >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="all">All time</option>
+              {RANGE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -158,9 +167,9 @@ export default function BlogAnalyticsPage() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">Loading…</td></tr>
+                    <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">Loading...</td></tr>
                   ) : paginatedPosts.length === 0 ? (
-                    <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">No blog post views recorded yet.</td></tr>
+                    <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-500">No blog post views recorded in this period.</td></tr>
                   ) : (
                     paginatedPosts.map((post) => (
                       <tr key={post.path} className="border-b border-gray-50 hover:bg-gray-50">
@@ -168,7 +177,7 @@ export default function BlogAnalyticsPage() {
                           <p className="font-medium text-gray-800">{post.title || post.path}</p>
                           {post.author && <p className="text-xs text-gray-500">{post.author}</p>}
                         </td>
-                        <td className="px-6 py-4 text-gray-600">{post.category || "—"}</td>
+                        <td className="px-6 py-4 text-gray-600">{post.category || "-"}</td>
                         <td className="px-6 py-4">
                           {post.status ? (
                             <span className={`text-xs font-medium px-2 py-1 rounded-full ${
@@ -176,7 +185,7 @@ export default function BlogAnalyticsPage() {
                             }`}>
                               {post.status}
                             </span>
-                          ) : "—"}
+                          ) : "-"}
                         </td>
                         <td className="px-6 py-4 flex items-center gap-1 text-gray-700">
                           <Eye size={14} className="text-gray-400" /> {post.total_views}
